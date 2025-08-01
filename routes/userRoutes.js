@@ -2,7 +2,6 @@
 const express = require('express');
 const router = express.Router();
 const { getAllUsers, storeFcmToken } = require('../controllers/userController');
-const { sendPushNotification } = require('../services/firebaseService');
 const User = require('../models/user');
 
 // Existing routes
