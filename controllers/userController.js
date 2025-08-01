@@ -1,11 +1,10 @@
 const User = require('../models/user');
-console.log("✅ User model loaded");
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find();
+    const users = await User.find().select('-password');
     res.json(users);
-  } catch (error) {
+  } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
 };
