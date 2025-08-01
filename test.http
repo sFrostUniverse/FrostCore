@@ -1,0 +1,9 @@
+### Signup test
+POST https://frostcore.onrender.com/api/auth/signup
+Content-Type: application/json
+
+{
+  "name": "VS Code Tester",
+  "email": "vscode@test.com",
+  "password": "frost123"
+}
