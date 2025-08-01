@@ -1,7 +1,30 @@
+// routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
-const { getAllUsers } = require('../controllers/userController');
+const { getAllUsers, storeFcmToken } = require('../controllers/userController');
+const { sendPushNotification } = require('../services/firebaseService');
+const User = require('../models/user');
 
+// Existing routes
 router.get('/', getAllUsers);
+router.post('/store-token', storeFcmToken);
+
+// ✅ Test notification route (correct place)
+router.post('/test-notify', async (req, res) => {
+  const { email, title, body } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user || !user.fcmToken) {
+      return res.status(404).json({ error: 'User or FCM token not found' });
+    }
+
+    await sendPushNotification(user.fcmToken, title, body);
+    res.status(200).json({ message: 'Notification sent' });
+  } catch (err) {
+    console.error('Notification error:', err.message);
+    res.status(500).json({ error: 'Failed to send notification' });
+  }
+});
 
 module.exports = router;

@@ -1,9 +1,7 @@
-### Signup test
-POST https://frostcore.onrender.com/api/auth/signup
+### Test push notification
+POST https://frostcore.onrender.com/api/users/test-notify
 Content-Type: application/json
 
 {
-  "name": "VS Code Tester",
-  "email": "vscode@test.com",
-  "password": "frost123"
+  "email": "frostyyuniverse@gmail.com"
 }

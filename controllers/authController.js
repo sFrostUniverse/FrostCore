@@ -1,36 +1,19 @@
 const User = require('../models/user');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 
-exports.registerUser = async (req, res) => {
+exports.googleSignIn = async (req, res) => {
+  const { uid, name, email } = req.body;
   try {
-    const { username, email, password } = req.body;
-    const existing = await User.findOne({ email });
-    if (existing) return res.status(400).json({ error: 'User already exists' });
+    let user = await User.findOne({ email });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ username, email, password: hashedPassword });
+    if (!user) {
+      user = await User.create({
+        username: name,
+        email,
+        password: uid // temporary password; not used
+      });
+    }
 
-    res.status(201).json({ message: 'User registered', user });
-  } catch (err) {
-    res.status(500).json({ error: 'Server error' });
-  }
-};
-
-exports.loginUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ error: 'User not found' });
-
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '7d',
-    });
-
-    res.json({ token });
+    res.status(200).json({ message: 'User stored/updated' });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
