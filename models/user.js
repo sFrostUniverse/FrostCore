@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
   fcmToken: { type: String },
   groupId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Group', // optional: links to Group model
+    ref: 'Group',
     default: null
   },
   role: {
@@ -15,4 +15,6 @@ const userSchema = new mongoose.Schema({
     enum: ['admin', 'member'],
     default: 'member'
   }
-});
+}, { timestamps: true }); // optional: adds createdAt/updatedAt
+
+module.exports = mongoose.model('User', userSchema);
