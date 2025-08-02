@@ -3,7 +3,7 @@ const express = require('express');
 const http = require('http'); // required for socket.io
 const connectDB = require('./config/db');
 const { Server } = require('socket.io'); // socket.io v4+
-
+const groupRoutes = require('./routes/groupRoutes');
 const app = express();
 const server = http.createServer(app); // wrap app with HTTP server
 const io = new Server(server, {
@@ -36,6 +36,7 @@ const notificationRoutes = require('./routes/notificationRoutes');
 
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/groups', groupRoutes);
 app.use('/api/notifications', notificationRoutes);
 
 // Handle socket connections
