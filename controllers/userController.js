@@ -25,8 +25,16 @@ exports.storeFcmToken = async (req, res) => {
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password');
-    res.status(200).json(user);
+
+    res.status(200).json({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      groupId: user.groupId || '',
+      role: user.role || '',
+    });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch profile' });
   }
 };
+
