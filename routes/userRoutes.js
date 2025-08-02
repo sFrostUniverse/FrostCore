@@ -1,12 +1,16 @@
 // routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
-const { getAllUsers, storeFcmToken } = require('../controllers/userController');
+const { getAllUsers, storeFcmToken, getMe } = require('../controllers/userController'); // ✅ add getMe
 const User = require('../models/user');
+const { protect } = require('../middleware/authMiddleware');
+const { sendPushNotification } = require('../utils/notificationUtils'); 
 
 // Existing routes
 router.get('/', getAllUsers);
 router.post('/store-token', storeFcmToken);
+router.get('/me', protect, getMe); // ✅ Authenticated user profile route
+
 
 // ✅ Test notification route (correct place)
 router.post('/test-notify', async (req, res) => {
