@@ -1,4 +1,6 @@
 require('dotenv').config();
+
+
 const express = require('express');
 const http = require('http'); // required for socket.io
 const connectDB = require('./config/db');
@@ -33,7 +35,14 @@ app.get('/', (req, res) => res.send('FrostCore API is running'));
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
-
+const chatRoutes = require('./routes/chatRoutes');
+const timetableRoutes = require('./routes/timetableRoutes');
+const noteRoutes = require('./routes/noteRoutes');
+const syllabusRoutes = require('./routes/syllabusRoutes');
+app.use('/api', syllabusRoutes);
+app.use('/api/notes', noteRoutes);
+app.use('/api', timetableRoutes);
+app.use('/api/chats', chatRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
@@ -47,6 +56,11 @@ io.on('connection', (socket) => {
   socket.on('register', (userId) => {
     console.log(`🔐 Registering user ${userId} to socket room`);
     socket.join(userId); // Join room by userId
+  });
+
+  socket.on('join-group', (groupId) => {
+    console.log(`👥 Socket ${socket.id} joined group ${groupId}`);
+    socket.join(groupId);
   });
 
   socket.on('disconnect', () => {

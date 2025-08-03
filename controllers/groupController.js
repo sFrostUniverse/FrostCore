@@ -77,3 +77,26 @@ exports.getGroupTimetable = async (req, res) => {
     res.status(500).json({ error: 'Failed to get timetable' });
   }
 };
+
+// ✅ This should be OUTSIDE
+exports.addTimetableEntry = async (req, res) => {
+  const { day, subject, teacher, time } = req.body;
+  const { groupId } = req.params;
+
+  if (!day || !subject || !teacher || !time) {
+    return res.status(400).json({ error: 'Missing fields' });
+  }
+
+  try {
+    const group = await Group.findById(groupId);
+    if (!group) return res.status(404).json({ error: 'Group not found' });
+
+    group.timetable.push({ day, subject, teacher, time });
+    await group.save();
+
+    res.status(201).json({ message: 'Timetable entry added', entry: { day, subject, teacher, time } });
+  } catch (error) {
+    console.error('Add timetable error:', error);
+    res.status(500).json({ error: 'Failed to add timetable entry' });
+  }
+};
