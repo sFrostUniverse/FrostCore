@@ -105,3 +105,18 @@ exports.addTimetableEntry = async (req, res) => {
     res.status(500).json({ error: 'Failed to add timetable entry' });
   }
 };
+// ✅ OUTSIDE all other functions
+exports.getGroupMembers = async (req, res) => {
+  const { groupId } = req.params;
+
+  try {
+    const group = await Group.findById(groupId).populate('members', 'username email role');
+    if (!group) return res.status(404).json({ error: 'Group not found' });
+
+    res.status(200).json(group.members);
+  } catch (error) {
+    console.error('Error fetching group members:', error);
+    res.status(500).json({ error: 'Failed to fetch group members' });
+  }
+};
+

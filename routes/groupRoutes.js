@@ -5,7 +5,8 @@ const {
   joinGroup,
   getGroupInfo,
   getGroupTimetable,
-  addTimetableEntry
+  addTimetableEntry,
+  getGroupMembers // ⬅️ ADD THIS
 } = require('../controllers/groupController');
 
 const { protect } = require('../middleware/authMiddleware');
@@ -16,5 +17,8 @@ router.post('/join', protect, joinGroup);
 router.get('/:groupId', protect, getGroupInfo);
 router.get('/:groupId/timetable', protect, getGroupTimetable);
 router.post('/:groupId/timetable', protect, addTimetableEntry);
+
+// ✅ ADD THIS ROUTE
+router.get('/:groupId/members', protect, getGroupMembers);
 
 module.exports = router;
