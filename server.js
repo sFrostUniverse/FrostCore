@@ -39,6 +39,8 @@ const chatRoutes = require('./routes/chatRoutes');
 const timetableRoutes = require('./routes/timetableRoutes');
 const noteRoutes = require('./routes/noteRoutes');
 const syllabusRoutes = require('./routes/syllabusRoutes');
+const announcementRoutes = require('./routes/announcementRoutes');
+app.use('/api/announcements', announcementRoutes);
 app.use('/api', syllabusRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api', timetableRoutes);

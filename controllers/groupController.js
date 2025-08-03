@@ -53,14 +53,19 @@ exports.joinGroup = async (req, res) => {
 // GET /api/groups/:groupId
 exports.getGroupInfo = async (req, res) => {
   try {
-    const group = await Group.findById(req.params.groupId).populate('members', 'name email');
+    const group = await Group.findById(req.params.groupId)
+      .populate('members', 'username email') // ✅ Correct field names
+      .populate('adminId', 'username email'); // ✅ Also return admin details
+
     if (!group) return res.status(404).json({ error: 'Group not found' });
 
-    res.json(group);
+    res.status(200).json(group);
   } catch (error) {
+    console.error('Error fetching group info:', error);
     res.status(500).json({ error: 'Failed to get group info' });
   }
 };
+
 
 // GET /api/groups/:groupId/timetable?day=Monday
 exports.getGroupTimetable = async (req, res) => {
