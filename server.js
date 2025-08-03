@@ -48,7 +48,7 @@ const noteRoutes = require('./routes/noteRoutes');
 const syllabusRoutes = require('./routes/syllabusRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 app.use('/api/announcements', announcementRoutes);
-app.use('/api', syllabusRoutes);
+app.use('/api/syllabus', syllabusRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api', timetableRoutes);
 app.use('/api/chats', chatRoutes);
