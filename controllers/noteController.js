@@ -2,7 +2,9 @@ const Note = require('../models/note');
 
 const createNote = async (req, res) => {
   try {
-    const { title, type, url, parentId, groupId } = req.body;
+    const { title, type, url, parentId } = req.body;
+    const groupId = req.params.groupId; // ✅ From URL instead of body
+
     if (!title || !type || !groupId) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
@@ -14,6 +16,7 @@ const createNote = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 const getNotes = async (req, res) => {
   try {
