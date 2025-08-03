@@ -2,11 +2,17 @@ require('dotenv').config();
 
 
 const express = require('express');
+const app = express();
+
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 const http = require('http'); // required for socket.io
 const connectDB = require('./config/db');
 const { Server } = require('socket.io'); // socket.io v4+
 const groupRoutes = require('./routes/groupRoutes');
-const app = express();
 const server = http.createServer(app); // wrap app with HTTP server
 const io = new Server(server, {
   cors: {
@@ -14,6 +20,7 @@ const io = new Server(server, {
     methods: ['GET', 'POST'],
   },
 });
+
 
 const PORT = process.env.PORT || 3000;
 
@@ -49,6 +56,11 @@ app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/notifications', notificationRoutes);
+
+app.use((req, res) => {
+  console.warn(`❌ 404 Not Found: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({ message: 'Route not found' });
+});
 
 // Handle socket connections
 io.on('connection', (socket) => {
