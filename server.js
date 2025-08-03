@@ -1,11 +1,12 @@
 require('dotenv').config();
 
-
 const express = require('express');
 const app = express();
 
+const logger = require('./utils/logger');
+
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  logger.info(`${req.method} ${req.originalUrl} from ${req.ip}`);
   next();
 });
 
@@ -20,7 +21,6 @@ const io = new Server(server, {
     methods: ['GET', 'POST'],
   },
 });
-
 
 const PORT = process.env.PORT || 3000;
 
@@ -37,7 +37,10 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.get('/', (req, res) => res.send('FrostCore API is running'));
+app.get('/', (req, res) => {
+  logger.info('Root route accessed');
+  res.send('FrostCore API is running');
+});
 
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
@@ -47,6 +50,7 @@ const timetableRoutes = require('./routes/timetableRoutes');
 const noteRoutes = require('./routes/noteRoutes');
 const syllabusRoutes = require('./routes/syllabusRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
+
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/syllabus', syllabusRoutes);
 app.use('/api/notes', noteRoutes);
@@ -57,32 +61,32 @@ app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/notifications', notificationRoutes);
 
+// 404 handler
 app.use((req, res) => {
-  console.warn(`❌ 404 Not Found: ${req.method} ${req.originalUrl}`);
+  logger.warn(`❌ 404 Not Found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({ message: 'Route not found' });
 });
 
 // Handle socket connections
 io.on('connection', (socket) => {
-  console.log('🟢 New client connected:', socket.id);
+  logger.info(`🟢 New client connected: ${socket.id}`);
 
-  // Custom auth handshake (optional)
   socket.on('register', (userId) => {
-    console.log(`🔐 Registering user ${userId} to socket room`);
-    socket.join(userId); // Join room by userId
+    logger.info(`🔐 Registering user ${userId} to socket room`);
+    socket.join(userId);
   });
 
   socket.on('join-group', (groupId) => {
-    console.log(`👥 Socket ${socket.id} joined group ${groupId}`);
+    logger.info(`👥 Socket ${socket.id} joined group ${groupId}`);
     socket.join(groupId);
   });
 
   socket.on('disconnect', () => {
-    console.log('🔴 Client disconnected:', socket.id);
+    logger.info(`🔴 Client disconnected: ${socket.id}`);
   });
 });
 
 // Start server
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  logger.info(`🚀 Server running on http://localhost:${PORT}`);
 });
