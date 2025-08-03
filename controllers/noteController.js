@@ -21,10 +21,12 @@ const getNotes = async (req, res) => {
     const { parentId } = req.query;
 
     const filter = { groupId };
-    if (parentId === undefined) {
-      filter.parentId = null;
-    } else {
+
+    if (parentId) {
       filter.parentId = parentId;
+    } else {
+      // Match notes where parentId is either null or doesn't exist
+      filter.$or = [{ parentId: null }, { parentId: { $exists: false } }];
     }
 
     const notes = await Note.find(filter).sort({ createdAt: 1 });
@@ -34,6 +36,7 @@ const getNotes = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 const deleteNote = async (req, res) => {
   try {
