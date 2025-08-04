@@ -34,10 +34,17 @@ exports.getTimetableForDay = async (req, res) => {
       return res.status(400).json({ message: 'Missing day in query' });
     }
 
-    const entries = await Timetable.find({ groupId, day }).sort({ time: 1 });
+    const entries = await Timetable.find({
+      groupId,
+      day: { $regex: new RegExp(`^${day}$`, 'i') }, // case-insensitive
+    })
+      .sort({ time: 1 })
+      .lean();
+
     res.status(200).json(entries);
   } catch (error) {
     console.error('Error fetching timetable:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
+
