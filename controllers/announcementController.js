@@ -1,4 +1,5 @@
 const Announcement = require('../models/announcement');
+const logger = require('../utils/logger');
 
 // POST /api/announcements
 exports.createAnnouncement = async (req, res) => {
@@ -13,25 +14,33 @@ exports.createAnnouncement = async (req, res) => {
       createdBy: userId,
     });
 
-    // Real-time push to group
     req.io.to(groupId).emit('new-announcement', announcement);
 
     res.status(201).json({ announcement });
   } catch (error) {
-    console.error('Create announcement error:', error);
+    logger.error('❌ Create announcement error:', error);
     res.status(500).json({ error: 'Failed to create announcement' });
   }
 };
 
-// GET /api/announcements/:groupId
+// GET /api/announcements/:groupId?page=1&limit=10
 exports.getAnnouncements = async (req, res) => {
   const { groupId } = req.params;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 20;
+
+  const skip = (page - 1) * limit;
 
   try {
-    const announcements = await Announcement.find({ groupId }).sort({ createdAt: -1 });
-    res.status(200).json({ announcements });
+    const announcements = await Announcement.find({ groupId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    res.status(200).json({ announcements, page });
   } catch (error) {
-    console.error('Get announcements error:', error);
+    logger.error('❌ Get announcements error:', error);
     res.status(500).json({ error: 'Failed to fetch announcements' });
   }
 };
@@ -46,7 +55,7 @@ exports.deleteAnnouncement = async (req, res) => {
 
     res.status(200).json({ message: 'Announcement deleted' });
   } catch (error) {
-    console.error('Delete announcement error:', error);
+    logger.error('❌ Delete announcement error:', error);
     res.status(500).json({ error: 'Failed to delete announcement' });
   }
 };

@@ -21,14 +21,20 @@ const groupSchema = new mongoose.Schema({
   }],
   timetable: [
     {
-      day: String,
-      subject: String,
-      teacher: String,
-      time: String,
+      day: { type: String, required: true },
+      subject: { type: String, required: true },
+      teacher: { type: String, required: true },
+      time: { type: String, required: true },
     },
   ],
 }, {
   timestamps: true,
 });
+
+// ✅ Indexes
+groupSchema.index({ groupCode: 1 });
+groupSchema.index({ 'members': 1 });
+groupSchema.index({ 'timetable.day': 1 });
+groupSchema.index({ adminId: 1, createdAt: -1 }); // optional
 
 module.exports = mongoose.model('Group', groupSchema);
