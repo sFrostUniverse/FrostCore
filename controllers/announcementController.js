@@ -14,7 +14,7 @@ exports.createAnnouncement = async (req, res) => {
       createdBy: userId,
     });
 
-    req.io.to(groupId).emit('new-announcement', announcement);
+    req.io.to(groupId).emit('announcement:new', announcement);
 
     res.status(201).json({ announcement });
   } catch (error) {

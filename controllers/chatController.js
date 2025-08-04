@@ -23,6 +23,7 @@ const sendMessage = async (req, res) => {
       .lean();
 
     req.io.to(groupId).emit('new-message', populatedMessage);
+    req.io.to(groupId).emit('chat:message');
 
     res.status(201).json(populatedMessage);
   } catch (error) {

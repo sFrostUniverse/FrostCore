@@ -96,15 +96,23 @@ exports.addTimetableEntry = async (req, res) => {
     const group = await Group.findById(groupId);
     if (!group) return res.status(404).json({ error: 'Group not found' });
 
-    group.timetable.push({ day, subject, teacher, time });
+    const newEntry = { day, subject, teacher, time };
+    group.timetable.push(newEntry);
     await group.save();
 
-    res.status(201).json({ message: 'Timetable entry added', entry: { day, subject, teacher, time } });
+    // 🟢 Emit real-time update to this group
+    req.io.to(groupId).emit('timetable:update', newEntry);
+
+    res.status(201).json({
+      message: 'Timetable entry added',
+      entry: newEntry,
+    });
   } catch (error) {
     console.error('Add timetable error:', error);
     res.status(500).json({ error: 'Failed to add timetable entry' });
   }
 };
+
 // ✅ OUTSIDE all other functions
 exports.getGroupMembers = async (req, res) => {
   const { groupId } = req.params;
