@@ -1,5 +1,6 @@
 const Chat = require('../models/chat');
 const User = require('../models/user');
+const MessageReadTracker = require('../models/messageReadTracker');
 const logger = require('../utils/logger');
 
 // POST /api/chats/send
@@ -19,7 +20,7 @@ const sendMessage = async (req, res) => {
 
     const populatedMessage = await newMessage
       .populate('sender', 'username email')
-      .execPopulate?.(); // if using Mongoose < 7
+      .execPopulate?.(); // optional for Mongoose <7
 
     req.io.to(groupId).emit('new-message', populatedMessage);
 
@@ -40,7 +41,7 @@ const getMessages = async (req, res) => {
   try {
     const messages = await Chat.find({ groupId })
       .populate('sender', 'username email')
-      .sort({ createdAt: 1 }) // oldest first
+      .sort({ createdAt: 1 })
       .skip(skip)
       .limit(limit)
       .lean()
@@ -53,7 +54,49 @@ const getMessages = async (req, res) => {
   }
 };
 
+// GET /api/groups/:groupId/chat/unread-count
+const getUnreadCount = async (req, res) => {
+  const { groupId } = req.params;
+  const userId = req.user._id;
+
+  try {
+    const tracker = await MessageReadTracker.findOne({ userId, groupId });
+    const lastRead = tracker?.lastReadMessageTimestamp || new Date(0);
+
+    const unreadCount = await Chat.countDocuments({
+      groupId,
+      createdAt: { $gt: lastRead },
+    });
+
+    res.json({ unreadCount });
+  } catch (err) {
+    logger.error('❌ Error getting unread count:', err);
+    res.status(500).json({ error: 'Failed to get unread count' });
+  }
+};
+
+// POST /api/groups/:groupId/chat/mark-read
+const markMessagesAsRead = async (req, res) => {
+  const { groupId } = req.params;
+  const userId = req.user._id;
+
+  try {
+    await MessageReadTracker.findOneAndUpdate(
+      { userId, groupId },
+      { lastReadMessageTimestamp: new Date() },
+      { upsert: true, new: true }
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    logger.error('❌ Error marking messages as read:', err);
+    res.status(500).json({ error: 'Failed to mark messages as read' });
+  }
+};
+
 module.exports = {
   sendMessage,
   getMessages,
+  getUnreadCount,
+  markMessagesAsRead,
 };
