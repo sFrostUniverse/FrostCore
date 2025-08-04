@@ -19,14 +19,6 @@ const groupSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   }],
-  timetable: [
-    {
-      day: { type: String, required: true },
-      subject: { type: String, required: true },
-      teacher: { type: String, required: true },
-      time: { type: String, required: true },
-    },
-  ],
 }, {
   timestamps: true,
 });
