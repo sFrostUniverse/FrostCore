@@ -8,7 +8,7 @@ const sendMessage = async (req, res) => {
   const { groupId, message } = req.body;
 
   if (!groupId || !message) {
-    return res.status(400).json({ error: 'GroupId and message required' });
+    return res.status(400).json({ error: 'GroupId and message are required' });
   }
 
   try {
@@ -18,9 +18,9 @@ const sendMessage = async (req, res) => {
       message,
     });
 
-    const populatedMessage = await newMessage
+    const populatedMessage = await Chat.findById(newMessage._id)
       .populate('sender', 'username email')
-      .execPopulate?.(); // optional for Mongoose <7
+      .lean();
 
     req.io.to(groupId).emit('new-message', populatedMessage);
 
@@ -44,8 +44,7 @@ const getMessages = async (req, res) => {
       .sort({ createdAt: 1 })
       .skip(skip)
       .limit(limit)
-      .lean()
-      .exec();
+      .lean();
 
     res.status(200).json({ messages, page });
   } catch (error) {
@@ -94,9 +93,31 @@ const markMessagesAsRead = async (req, res) => {
   }
 };
 
+// GET /api/groups/:groupId/chat/preview
+const getGroupChatPreview = async (req, res) => {
+  const { groupId } = req.params;
+
+  try {
+    const lastMessage = await Chat.findOne({ groupId })
+      .sort({ createdAt: -1 })
+      .populate('sender', 'username email')
+      .lean();
+
+    if (!lastMessage) {
+      return res.status(200).json({ message: 'No messages yet' });
+    }
+
+    res.status(200).json(lastMessage);
+  } catch (error) {
+    logger.error('❌ Error fetching chat preview:', error);
+    res.status(500).json({ error: 'Failed to fetch chat preview' });
+  }
+};
+
 module.exports = {
   sendMessage,
   getMessages,
   getUnreadCount,
   markMessagesAsRead,
+  getGroupChatPreview,
 };

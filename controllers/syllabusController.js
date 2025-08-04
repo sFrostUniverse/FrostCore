@@ -1,39 +1,61 @@
 const Syllabus = require('../models/syllabus');
+const asyncHandler = require('express-async-handler');
+const logger = require('../utils/logger');
 
-exports.addSyllabus = async (req, res) => {
-  try {
-    const { groupId, subject, link } = req.body;
+// POST /api/syllabus/
+exports.addSyllabus = asyncHandler(async (req, res) => {
+  const { subject, link } = req.body;
+  const groupId = req.user.groupId;
 
-    const syllabus = new Syllabus({
-      groupId,
-      subject,
-      link,
-    });
-
-    await syllabus.save();
-    res.status(201).json({ message: 'Syllabus added successfully', syllabus });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+  if (!subject || !link) {
+    return res.status(400).json({ message: 'Subject and link are required' });
   }
-};
 
-exports.getSyllabus = async (req, res) => {
-  try {
-    const { groupId } = req.params;
+  const syllabus = await Syllabus.create({
+    groupId,
+    subject,
+    link,
+    createdBy: req.user._id,
+  });
 
-    const syllabusList = await Syllabus.find({ groupId }).sort({ createdAt: -1 });
-    res.status(200).json({ syllabus: syllabusList });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+  res.status(201).json({ message: 'Syllabus added successfully', syllabus });
+});
+
+// GET /api/syllabus/:groupId
+exports.getSyllabus = asyncHandler(async (req, res) => {
+  const { groupId } = req.params;
+
+  const syllabusList = await Syllabus.find({ groupId })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  res.status(200).json({ syllabus: syllabusList });
+});
+
+// GET /api/syllabus/
+exports.getSyllabusByUserGroup = asyncHandler(async (req, res) => {
+  const groupId = req.user.groupId;
+
+  if (!groupId) {
+    return res.status(400).json({ message: 'User is not in a group' });
   }
-};
 
-exports.deleteSyllabus = async (req, res) => {
-  try {
-    const { id } = req.params;
-    await Syllabus.findByIdAndDelete(id);
-    res.status(200).json({ message: 'Syllabus deleted successfully' });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+  const syllabusList = await Syllabus.find({ groupId })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  res.status(200).json({ syllabus: syllabusList });
+});
+
+// DELETE /api/syllabus/:id
+exports.deleteSyllabus = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const deleted = await Syllabus.findByIdAndDelete(id);
+
+  if (!deleted) {
+    return res.status(404).json({ message: 'Syllabus not found' });
   }
-};
+
+  res.status(200).json({ message: 'Syllabus deleted successfully' });
+});

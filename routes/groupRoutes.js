@@ -27,4 +27,8 @@ router.post('/:groupId/timetable', protect, addTimetableEntry);
 router.get('/:groupId/chat/unread-count', protect, chatController.getUnreadCount);
 router.post('/:groupId/chat/mark-read', protect, chatController.markMessagesAsRead);
 
+// 🧩 Chat preview
+router.get('/:groupId/chat/preview', protect, chatController.getGroupChatPreview);
+
+
 module.exports = router;

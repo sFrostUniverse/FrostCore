@@ -1,6 +1,7 @@
 const express = require('express');
 const {
   getNotes,
+  getNotesByUserGroup,
   createNote,
   deleteNote,
 } = require('../controllers/noteController');
@@ -8,9 +9,11 @@ const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-router.get('/:groupId', protect, getNotes); // ✅ fine
-router.post('/:groupId', protect, createNote); // ✅ fine
-router.delete('/:noteId', protect, deleteNote); // ✅ fixed
-// Removed groupId from DELETE route — not needed
+// ✅ New route: get notes using user's groupId
+
+// ✅ Existing routes
+router.get('/:groupId', protect, getNotes);
+router.post('/:groupId', protect, createNote);
+router.delete('/:noteId', protect, deleteNote);
 
 module.exports = router;
