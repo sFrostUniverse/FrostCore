@@ -15,5 +15,7 @@ const router = express.Router();
 router.get('/:groupId', protect, getNotes);
 router.post('/:groupId', protect, createNote);
 router.delete('/:noteId', protect, deleteNote);
+router.get('/', protect, getNotesByUserGroup); // this must exist
+
 
 module.exports = router;

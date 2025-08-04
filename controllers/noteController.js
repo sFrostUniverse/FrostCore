@@ -71,5 +71,25 @@ const deleteNote = async (req, res) => {
     res.status(500).json({ success: false, error: 'Server error' });
   }
 };
+// GET /api/notes/
+const getNotesByUserGroup = async (req, res) => {
+  try {
+    const groupId = req.user.groupId;
+    if (!groupId) {
+      return res.status(400).json({ error: 'User not in any group' });
+    }
 
-module.exports = { createNote, getNotes, deleteNote };
+    const notes = await Note.find({ groupId })
+      .sort({ createdAt: 1 })
+      .lean()
+      .exec();
+
+    res.status(200).json({ success: true, notes });
+  } catch (error) {
+    logger.error('❌ Error fetching notes by user group:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+};
+
+
+module.exports = { createNote, getNotes, deleteNote,getNotesByUserGroup, };
