@@ -10,6 +10,8 @@ const timetableSchema = new mongoose.Schema(
     day: {
       type: String,
       required: true,
+      lowercase: true, // ensures saved as lowercase
+      trim: true,
     },
     subject: {
       type: String,
@@ -20,11 +22,17 @@ const timetableSchema = new mongoose.Schema(
       required: true,
     },
     time: {
-      type: String,
+      type: String, // assuming 'HH:mm' format
       required: true,
+      trim: true,
     },
   },
   { timestamps: true }
 );
 
+// ✅ Compound index for fast query
+timetableSchema.index({ groupId: 1, day: 1, time: 1 });
+
 module.exports = mongoose.model('Timetable', timetableSchema);
+
+

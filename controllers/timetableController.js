@@ -34,9 +34,10 @@ exports.getTimetableForDay = async (req, res) => {
       return res.status(400).json({ message: 'Missing day in query' });
     }
 
+    const dayLower = day.toLowerCase();
     const entries = await Timetable.find({
       groupId,
-      day: { $regex: new RegExp(`^${day}$`, 'i') }, // case-insensitive
+      day: dayLower,
     })
       .sort({ time: 1 })
       .lean();
