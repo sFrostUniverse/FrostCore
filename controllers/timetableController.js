@@ -11,11 +11,12 @@ exports.addTimetableEntry = async (req, res) => {
 
     const entry = new Timetable({
       groupId,
-      day,
+      day: day.toLowerCase(), // ✅ enforce lowercase storage
       subject,
       teacher,
       time,
     });
+
 
     await entry.save();
     res.status(201).json({ message: 'Timetable entry added', entry });
@@ -34,10 +35,10 @@ exports.getTimetableForDay = async (req, res) => {
       return res.status(400).json({ message: 'Missing day in query' });
     }
 
-    const dayLower = day.toLowerCase();
     const entries = await Timetable.find({
       groupId,
-      day: dayLower,
+      day: day.toLowerCase()
+
     })
       .sort({ time: 1 })
       .lean();
