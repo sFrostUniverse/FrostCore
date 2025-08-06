@@ -14,8 +14,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['admin', 'member'],
     default: 'member'
+  },
+  nickname: {
+    type: String,
+    trim: true,
+    default: '' // default to empty string, optional to fill
   }
 }, { timestamps: true });
+
 
 // ⚡️ Indexes
 userSchema.index({ email: 1 });

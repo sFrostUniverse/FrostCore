@@ -5,7 +5,7 @@ const announcementSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Group',
     required: true,
-    index: true, // add index on groupId
+    index: true,
   },
   title: {
     type: String,
@@ -15,6 +15,13 @@ const announcementSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  eventDate: {
+    type: Date, // Used for upcoming events
+  },
+  pinned: {
+    type: Boolean,
+    default: false, // Used to pin announcements
+  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -22,7 +29,7 @@ const announcementSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
-// Compound index for queries by group and sorting by creation date
+// Index for fast queries by group and recent first
 announcementSchema.index({ groupId: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Announcement', announcementSchema);

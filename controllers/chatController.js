@@ -19,7 +19,7 @@ const sendMessage = async (req, res) => {
     });
 
     const populatedMessage = await Chat.findById(newMessage._id)
-      .populate('sender', 'username email')
+      .populate('sender', 'username email nickname')
       .lean();
 
     req.io.to(groupId).emit('new-message', populatedMessage);
@@ -41,7 +41,7 @@ const getMessages = async (req, res) => {
 
   try {
     const messages = await Chat.find({ groupId })
-      .populate('sender', 'username email')
+      .populate('sender', 'username email nickname')
       .sort({ createdAt: 1 })
       .skip(skip)
       .limit(limit)
@@ -101,7 +101,7 @@ const getGroupChatPreview = async (req, res) => {
   try {
     const lastMessage = await Chat.findOne({ groupId })
       .sort({ createdAt: -1 })
-      .populate('sender', 'username email')
+      .populate('sender', 'username email nickname')
       .lean();
 
     if (!lastMessage) {
