@@ -1,0 +1,21 @@
+config:
+  target: "https://frostcore.onrender.com"
+  phases:
+    - duration: 30
+      arrivalRate: 50
+  defaults:
+    headers:
+      Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4OGZjNTMwNWUxYTc0NGNiNmYxOWE4MCIsImVtYWlsIjoiZnJvc3R5eXVuaXZlcnNlQGdtYWlsLmNvbSIsImlhdCI6MTc1NDQ4ODc3MSwiZXhwIjoxNzU1MDkzNTcxfQ.dvp-rTL71hU7ymdDIqGHxT_Q3R9UbOERi61t39Bkbmk"
+  processor: "./processor.js"  # Optional if you want to reuse groupId
+
+scenarios:
+  - name: "Authenticated user endpoints"
+    flow:
+      - get:
+          url: "/api/users/me"
+      - get:
+          url: "/api/notes/688e2d4b3f51ebc203e91dd8"
+      - get:
+          url: "/api/groups/688e2d4b3f51ebc203e91dd8/chat/preview"
+      - get:
+          url: "/api/groups/688e2d4b3f51ebc203e91dd8/timetable?day=wednesday"
