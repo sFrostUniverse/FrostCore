@@ -15,12 +15,18 @@ const createNote = async (req, res) => {
 
     const note = await Note.create({ title, type, url, parentId, groupId });
 
+
+
     // Clear cache after creating a new note
     cache.del(`notes-${groupId}`);
 
+    // Real-time update
+    req.io.to(groupId).emit('note-updated');
+
     res.status(201).json({ success: true, note });
-  } catch (error) {
-    logger.error('❌ Error creating note:', error.message);
+
+    } catch (error) {
+      logger.error('❌ Error creating note:', error.message);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 };
@@ -71,12 +77,16 @@ const deleteNote = async (req, res) => {
     // Clear cache for this group
     cache.del(`notes-${deleted.groupId}`);
 
+    // 🟢 Emit real-time update to all group users
+    req.io.to(deleted.groupId.toString()).emit('note-updated');
+
     res.status(200).json({ success: true, message: 'Note deleted' });
   } catch (error) {
     logger.error('❌ Error deleting note:', error.message);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 };
+
 
 // GET /api/notes/ (for user’s own group)
 const getNotesByUserGroup = async (req, res) => {
