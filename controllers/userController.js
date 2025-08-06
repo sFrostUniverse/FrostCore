@@ -27,13 +27,14 @@ exports.getMe = async (req, res) => {
     const user = await User.findById(req.user._id).select('-password');
 
     res.status(200).json({
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      groupId: user.groupId || '',
-      role: user.role || '',
-      nickname: user.nickname || '', // ✅ add this
-    });
+    _id: user._id,
+    username: user.username,
+    email: user.email,
+    groupId: user.groupId,  // ✅ no fallback to ''
+    role: user.role || '',
+    nickname: user.nickname || '',
+  });
+
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch profile' });
   }
