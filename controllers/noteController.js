@@ -6,6 +6,8 @@ const cache = require('../utils/cache');
 // POST /api/notes/:groupId
 const createNote = async (req, res) => {
   try {
+    console.log('Create note request body:', req.body); // <-- log request body here
+
     const { title, type, url, parentId } = req.body;
     const groupId = req.params.groupId;
 
@@ -15,7 +17,7 @@ const createNote = async (req, res) => {
 
     const note = await Note.create({ title, type, url, parentId, groupId });
 
-
+    console.log('Created note:', note); // <-- log created note here
 
     // Clear cache after creating a new note
     cache.del(`notes-${groupId}`);
@@ -24,12 +26,12 @@ const createNote = async (req, res) => {
     req.io.to(groupId).emit('note-updated');
 
     res.status(201).json({ success: true, note });
-
-    } catch (error) {
-      logger.error('❌ Error creating note:', error.message);
+  } catch (error) {
+    logger.error('❌ Error creating note:', error.message);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 };
+
 
 // GET /api/notes/:groupId?parentId=xxx&page=1&limit=30
 const getNotes = async (req, res) => {
