@@ -1,7 +1,7 @@
 // routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
-const { getAllUsers, storeFcmToken, getMe } = require('../controllers/userController'); // ✅ add getMe
+const { getAllUsers, storeFcmToken, getMe, updateNickname } = require('../controllers/userController');
 const User = require('../models/user');
 const { protect } = require('../middleware/authMiddleware');
 const { sendPushNotification } = require('../utils/notificationUtils'); 
@@ -10,7 +10,7 @@ const { sendPushNotification } = require('../utils/notificationUtils');
 router.get('/', getAllUsers);
 router.post('/store-token', storeFcmToken);
 router.get('/me', protect, getMe); // ✅ Authenticated user profile route
-
+router.patch('/me/nickname', protect, updateNickname);
 
 // ✅ Test notification route (correct place)
 router.post('/test-notify', async (req, res) => {

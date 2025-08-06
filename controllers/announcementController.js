@@ -78,43 +78,46 @@ exports.getPinnedAnnouncements = async (req, res) => {
 };
 
 // ✅ GET /api/announcements/:groupId/upcoming
-exports.getUpcomingEvents = async (req, res) => {
+// Rename these to match your logical use in routes
+exports.getUpcomingAnnouncements = async (req, res) => {
   const { groupId } = req.params;
-
   try {
     const now = new Date();
     const upcoming = await Announcement.find({
       groupId,
       eventDate: { $gte: now },
-    })
-      .sort({ eventDate: 1 })
-      .lean();
+    }).sort({ eventDate: 1 }).lean();
 
     res.status(200).json({ upcoming });
   } catch (error) {
-    logger.error('❌ Get upcoming events error:', error);
-    res.status(500).json({ error: 'Failed to fetch upcoming events' });
+    logger.error('❌ Get upcoming announcements error:', error);
+    res.status(500).json({ error: 'Failed to fetch upcoming announcements' });
   }
 };
 
-// ✅ PATCH /api/announcements/:id/pin
-exports.togglePin = async (req, res) => {
+exports.togglePinnedStatus = async (req, res) => {
   const { pinned } = req.body;
-
+  if (typeof pinned !== 'boolean') {
+    return res.status(400).json({ error: 'Pinned status must be a boolean' });
+  }
   try {
     const announcement = await Announcement.findByIdAndUpdate(
       req.params.id,
       { pinned },
       { new: true }
-    );
+    ).lean();
 
     if (!announcement) {
       return res.status(404).json({ error: 'Announcement not found' });
     }
 
+    // Optionally emit socket event:
+    req.io.to(announcement.groupId).emit('announcement:pinToggled', announcement);
+
     res.status(200).json({ announcement });
   } catch (error) {
-    logger.error('❌ Toggle pin error:', error);
-    res.status(500).json({ error: 'Failed to toggle pin' });
+    logger.error('❌ Toggle pinned status error:', error);
+    res.status(500).json({ error: 'Failed to toggle pinned status' });
   }
 };
+

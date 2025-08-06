@@ -1,12 +1,22 @@
-// CORRECT way for named export
-const { createAnnouncement, getAnnouncements, deleteAnnouncement } = require('../controllers/announcementController');
-const { protect } = require('../middleware/authMiddleware'); // ✅ FIXED
-
 const express = require('express');
 const router = express.Router();
 
-router.post('/', protect, createAnnouncement); // POST /api/announcements
-router.get('/:groupId', protect, getAnnouncements); // GET /api/announcements/:groupId
-router.delete('/:id', protect, deleteAnnouncement); // DELETE /api/announcements/:id
+const {
+  createAnnouncement,
+  getAnnouncements,
+  deleteAnnouncement,
+  getPinnedAnnouncements,
+  getUpcomingAnnouncements,
+  togglePinnedStatus,
+} = require('../controllers/announcementController');
+
+const { protect } = require('../middleware/authMiddleware');
+
+router.post('/', protect, createAnnouncement);                  // ✅ Create
+router.get('/:groupId', protect, getAnnouncements);             // ✅ Fetch All
+router.get('/:groupId/pinned', protect, getPinnedAnnouncements); // 🔹 Needed
+router.get('/:groupId/upcoming', protect, getUpcomingAnnouncements); // 🔹 Needed
+router.delete('/:id', protect, deleteAnnouncement);             // ✅ Delete
+router.patch('/:id/pin', protect, togglePinnedStatus);          // 🔄 (optional)
 
 module.exports = router;

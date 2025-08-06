@@ -32,9 +32,30 @@ exports.getMe = async (req, res) => {
       email: user.email,
       groupId: user.groupId || '',
       role: user.role || '',
+      nickname: user.nickname || '', // ✅ add this
     });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch profile' });
   }
 };
+// ✅ Update nickname
+exports.updateNickname = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { nickname } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { nickname },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error('Update nickname error:', error.message);
+    res.status(500).json({ error: 'Failed to update nickname' });
+  }
+};
+
+
 
