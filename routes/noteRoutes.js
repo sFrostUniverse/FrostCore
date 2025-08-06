@@ -1,0 +1,21 @@
+const express = require('express');
+const {
+  getNotes,
+  getNotesByUserGroup,
+  createNote,
+  deleteNote,
+} = require('../controllers/noteController');
+const { protect } = require('../middleware/authMiddleware');
+
+const router = express.Router();
+
+// ✅ New route: get notes using user's groupId
+
+// ✅ Existing routes
+router.get('/:groupId', protect, getNotes);
+router.post('/:groupId', protect, createNote);
+router.delete('/:noteId', protect, deleteNote);
+router.get('/', protect, getNotesByUserGroup); // this must exist
+
+
+module.exports = router;

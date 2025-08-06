@@ -1,0 +1,7 @@
+### Test push notification
+POST https://frostcore.onrender.com/api/users/test-notify
+Content-Type: application/json
+
+{
+  "email": "frostyyuniverse@gmail.com"
+}
