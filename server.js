@@ -51,6 +51,13 @@ const timetableRoutes = require('./routes/timetableRoutes');
 const noteRoutes = require('./routes/noteRoutes');
 const syllabusRoutes = require('./routes/syllabusRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
+const doubtRoutes = require('./routes/doubtRoutes');
+
+
+app.use('/api/groups/:groupId/doubts', (req, res, next) => {
+  req.groupId = req.params.groupId; // Pass groupId to controller
+  doubtRoutes(req, res, next); // Use doubtRoutes for group-specific routes
+});
 
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/syllabus', syllabusRoutes);
