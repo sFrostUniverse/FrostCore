@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const upload = require('../utils/upload');
+const upload = require('../middleware/upload');
+
 
 router.post('/image', upload.single('image'), (req, res) => {
   if (!req.file) {
