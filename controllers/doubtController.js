@@ -5,8 +5,9 @@ exports.askDoubt = async (req, res) => {
   try {
     const doubt = await Doubt.create({
       userId: req.body.userId,
-      groupId: req.params.groupId,
-      question: req.body.question
+      groupId: req.body.groupId,
+      question: req.body.question,
+      imageUrl: req.file ? req.file.path : null,
     });
     res.status(201).json(doubt);
   } catch (err) {
@@ -14,15 +15,22 @@ exports.askDoubt = async (req, res) => {
   }
 };
 
+
 // GET /api/groups/:groupId/doubts
 exports.getGroupDoubts = async (req, res) => {
   try {
-    const doubts = await Doubt.find({ groupId: req.params.groupId }).populate('userId', 'name email');
+    const { groupId } = req.params;
+
+    const doubts = await Doubt.find({ groupId })
+      .populate('userId', 'name email')
+      .sort({ createdAt: -1 });
+
     res.json(doubts);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch doubts for this group' });
+    res.status(500).json({ error: 'Failed to fetch group doubts' });
   }
 };
+
 
 // PUT /api/doubts/:id/answer
 exports.answerDoubt = async (req, res) => {

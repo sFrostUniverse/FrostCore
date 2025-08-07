@@ -52,12 +52,11 @@ const noteRoutes = require('./routes/noteRoutes');
 const syllabusRoutes = require('./routes/syllabusRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const doubtRoutes = require('./routes/doubtRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
-
-app.use('/api/groups/:groupId/doubts', (req, res, next) => {
-  req.groupId = req.params.groupId; // Pass groupId to controller
-  doubtRoutes(req, res, next); // Use doubtRoutes for group-specific routes
-});
+app.use('/uploads', express.static('uploads')); // static serving for uploaded files
+app.use('/api/upload', uploadRoutes); // image upload route
+app.use('/api/doubts', doubtRoutes); // ⬅️ Clean mounting for doubt-related routes
 
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/syllabus', syllabusRoutes);
