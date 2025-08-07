@@ -56,7 +56,7 @@ const uploadRoutes = require('./routes/uploadRoutes');
 
 app.use('/uploads', express.static('uploads')); // static serving for uploaded files
 app.use('/api/upload', uploadRoutes); // image upload route
-app.use('/api/doubts', doubtRoutes); // ⬅️ Clean mounting for doubt-related routes
+app.use('/api/groups', doubtRoutes); // ⬅️ Clean mounting for doubt-related routes
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/syllabus', syllabusRoutes);
 app.use('/api/notes', noteRoutes);

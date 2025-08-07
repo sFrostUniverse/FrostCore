@@ -1,19 +1,21 @@
 const Doubt = require('../models/doubtModel');
 
 // POST /api/groups/:groupId/doubts
+// POST /api/groups/:groupId/doubts
 exports.askDoubt = async (req, res) => {
   try {
     const doubt = await Doubt.create({
       userId: req.body.userId,
-      groupId: req.body.groupId,
+      groupId: req.params.groupId, // ✅ use from URL
       question: req.body.question,
-      imageUrl: req.file ? `/uploads/${req.file.filename}` : null,
+      imageUrl: req.file ? req.file.path : null,
     });
     res.status(201).json(doubt);
   } catch (err) {
     res.status(400).json({ error: 'Failed to submit doubt' });
   }
 };
+
 
 
 // GET /api/groups/:groupId/doubts
