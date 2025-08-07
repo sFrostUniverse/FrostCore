@@ -7,7 +7,7 @@ exports.askDoubt = async (req, res) => {
       userId: req.body.userId,
       groupId: req.body.groupId,
       question: req.body.question,
-      imageUrl: req.file ? req.file.path : null,
+      imageUrl: req.file ? `/uploads/${req.file.filename}` : null,
     });
     res.status(201).json(doubt);
   } catch (err) {
