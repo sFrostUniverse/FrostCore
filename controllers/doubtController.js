@@ -2,19 +2,33 @@ const Doubt = require('../models/doubtModel');
 
 // POST /api/groups/:groupId/doubts
 // POST /api/groups/:groupId/doubts
+// POST /api/groups/:groupId/doubts
 exports.askDoubt = async (req, res) => {
   try {
+    const { userId, title, description } = req.body;
+    const groupId = req.params.groupId;
+
+    if (!userId || !title || !description) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : '';
+
     const doubt = await Doubt.create({
-      userId: req.body.userId,
-      groupId: req.params.groupId, // ✅ use from URL
-      question: req.body.question,
-      imageUrl: req.file ? req.file.path : null,
+      userId,
+      groupId,
+      title,
+      description,
+      imageUrl,
     });
+
     res.status(201).json(doubt);
   } catch (err) {
+    console.error('❌ Failed to submit doubt:', err);
     res.status(400).json({ error: 'Failed to submit doubt' });
   }
 };
+
 
 
 
