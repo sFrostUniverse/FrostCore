@@ -54,9 +54,9 @@ const announcementRoutes = require('./routes/announcementRoutes');
 const doubtRoutes = require('./routes/doubtRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 
-app.use('/uploads', express.static('uploads')); // static serving for uploaded files
-app.use('/api/upload', uploadRoutes); // image upload route
-app.use('/api', doubtRoutes);  // ✅ Fix: avoids double /groups
+app.use('/uploads', express.static('uploads'));
+app.use('/api/upload', uploadRoutes); 
+app.use('/api/doubts', doubtRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/syllabus', syllabusRoutes);
 app.use('/api/notes', noteRoutes);
