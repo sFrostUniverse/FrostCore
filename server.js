@@ -56,7 +56,8 @@ const uploadRoutes = require('./routes/uploadRoutes');
 
 app.use('/uploads', express.static('uploads'));
 app.use('/api/upload', uploadRoutes); 
-app.use('/api/doubts', doubtRoutes);
+app.use('/api', doubtRoutes);         // old route
+app.use('/api/doubts', doubtRoutes);  // new route
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/syllabus', syllabusRoutes);
 app.use('/api/notes', noteRoutes);
