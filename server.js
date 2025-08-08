@@ -67,11 +67,15 @@ app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/notifications', notificationRoutes);
 
+
 // 404 handler
 app.use((req, res) => {
   logger.warn(`❌ 404 Not Found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({ message: 'Route not found' });
 });
+
+
+
 
 // Handle socket connections
 io.on('connection', (socket) => {
