@@ -27,6 +27,10 @@ const doubtSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  answerImage: {
+    type: String,
+    default: ''
+  },
   answered: {
     type: Boolean,
     default: false
@@ -36,6 +40,5 @@ const doubtSchema = new mongoose.Schema({
     default: Date.now
   }
 });
-
 
 module.exports = mongoose.model('Doubt', doubtSchema);

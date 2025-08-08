@@ -53,19 +53,33 @@ exports.getGroupDoubts = async (req, res) => {
 // PUT /api/doubts/:id/answer
 exports.answerDoubt = async (req, res) => {
   try {
-    const updated = await Doubt.findByIdAndUpdate(
-      req.params.id,
-      {
-        answer: req.body.answer,
-        answered: true
-      },
-      { new: true }
-    );
+    const { answer } = req.body;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
+
+    if (!answer) {
+      return res.status(400).json({ error: 'Answer is required' });
+    }
+
+    const updateData = {
+      answer,
+      answered: true,
+    };
+
+    if (imageUrl) {
+      updateData.answerImage = imageUrl; // Add this field in your model if not present
+    }
+
+    const updated = await Doubt.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+    });
+
     res.json(updated);
   } catch (err) {
+    console.error('❌ Failed to answer doubt:', err);
     res.status(400).json({ error: 'Failed to answer doubt' });
   }
 };
+
 
 // Optional: GET /api/doubts — to fetch all doubts across groups (useful for admin)
 exports.getAllDoubts = async (req, res) => {

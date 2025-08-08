@@ -9,6 +9,7 @@ router.post('/groups/:groupId/doubts', upload.single('image'), doubtController.a
 
 // 🗂️ General routes (optional fallback)
 router.get('/', doubtController.getAllDoubts);
-router.put('/:id/answer', doubtController.answerDoubt);
+router.put('/:id/answer', upload.single('image'), doubtController.answerDoubt);
+
 
 module.exports = router;
