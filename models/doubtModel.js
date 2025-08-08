@@ -1,32 +1,39 @@
 const mongoose = require('mongoose');
 
-const doubtSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+const doubtSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    groupId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Group',
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    imageUrl: {
+      type: String,
+      default: null,
+    },
+    answer: {
+      type: String,
+      default: '',
+    },
+    answered: {
+      type: Boolean,
+      default: false,
+    },
   },
-  groupId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Group', // Assuming you have a Group model
-    required: true
-  },
-  question: {
-    type: String,
-    required: true
-  },
-  answer: {
-    type: String,
-    default: ''
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  answered: {
-    type: Boolean,
-    default: false
-  }
-});
+  { timestamps: true }
+);
 
 module.exports = mongoose.model('Doubt', doubtSchema);
