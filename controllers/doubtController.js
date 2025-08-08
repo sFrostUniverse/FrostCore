@@ -5,13 +5,14 @@ const Doubt = require('../models/doubtModel');
 // POST /api/groups/:groupId/doubts
 exports.askDoubt = async (req, res) => {
   try {
-    const { userId, title, description } = req.body;
+    const { userId, title, question } = req.body;
     const groupId = req.params.groupId;
 
-    if (!userId || !title || !description) {
+    if (!userId || !title || !question) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
+    const description = question; // ✅ Map question to description
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : '';
 
     const doubt = await Doubt.create({
@@ -28,6 +29,7 @@ exports.askDoubt = async (req, res) => {
     res.status(400).json({ error: 'Failed to submit doubt' });
   }
 };
+
 
 
 
