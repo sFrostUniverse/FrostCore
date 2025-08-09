@@ -10,6 +10,17 @@ app.use((req, res, next) => {
   next();
 });
 
+const fs = require('fs');
+const path = require('path');
+
+// Ensure uploads folder exists
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+  logger.info(`📂 Created uploads directory at ${uploadDir}`);
+}
+
+
 
 const http = require('http'); // required for socket.io
 const connectDB = require('./config/db');

@@ -11,15 +11,21 @@ const storage = multer.diskStorage({
   },
 });
 
+const allowedExts = ['.jpg', '.jpeg', '.png', '.webp'];
+
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype && file.mimetype.startsWith('image/')) {
+  const ext = path.extname(file.originalname).toLowerCase();
+
+  if (
+    (file.mimetype && file.mimetype.startsWith('image/')) ||
+    (file.mimetype === 'application/octet-stream' && allowedExts.includes(ext))
+  ) {
     cb(null, true);
   } else {
-    console.warn(`⚠️ Rejected file with type: ${file.mimetype}`);
-    cb(null, false); // <-- Don't throw error, just silently reject
+    console.warn(`⚠️ Rejected file: ${file.originalname} | type: ${file.mimetype}`);
+    cb(null, false);
   }
 };
-
 
 const upload = multer({ storage, fileFilter });
 module.exports = upload;
