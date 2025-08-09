@@ -16,8 +16,10 @@ exports.askDoubt = async (req, res) => {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    const description = question; // ✅ Map question to description
-    const imageUrl = req.file ? makeFullUrl(req, `/uploads/${req.file.filename}`) : '';
+    const description = question;
+
+    // ✅ For Cloudinary, the URL is directly available in req.file.path
+    const imageUrl = req.file ? req.file.path : '';
 
     const doubt = await Doubt.create({
       userId,
@@ -33,6 +35,7 @@ exports.askDoubt = async (req, res) => {
     res.status(400).json({ error: 'Failed to submit doubt' });
   }
 };
+
 
 // GET /api/groups/:groupId/doubts
 exports.getGroupDoubts = async (req, res) => {
@@ -60,7 +63,7 @@ exports.getGroupDoubts = async (req, res) => {
 exports.answerDoubt = async (req, res) => {
   try {
     const { answer } = req.body;
-    const answerImage = req.file ? makeFullUrl(req, `/uploads/${req.file.filename}`) : undefined;
+    const answerImage = req.file ? req.file.path : undefined;
 
     if (!answer) {
       return res.status(400).json({ error: 'Answer is required' });
@@ -85,6 +88,7 @@ exports.answerDoubt = async (req, res) => {
     res.status(400).json({ error: 'Failed to answer doubt' });
   }
 };
+
 // GET /api/doubts/:id
 exports.getDoubtById = async (req, res) => {
   try {
