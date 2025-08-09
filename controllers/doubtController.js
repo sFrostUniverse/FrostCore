@@ -1,7 +1,11 @@
 const Doubt = require('../models/doubtModel');
 
-// POST /api/groups/:groupId/doubts
-// POST /api/groups/:groupId/doubts
+// Helper to create absolute URL for uploaded files
+const makeFullUrl = (req, filePath) => {
+  if (!filePath) return '';
+  return `${req.protocol}://${req.get('host')}${filePath}`;
+};
+
 // POST /api/groups/:groupId/doubts
 exports.askDoubt = async (req, res) => {
   try {
@@ -13,7 +17,7 @@ exports.askDoubt = async (req, res) => {
     }
 
     const description = question; // ✅ Map question to description
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : '';
+    const imageUrl = req.file ? makeFullUrl(req, `/uploads/${req.file.filename}`) : '';
 
     const doubt = await Doubt.create({
       userId,
@@ -30,10 +34,6 @@ exports.askDoubt = async (req, res) => {
   }
 };
 
-
-
-
-
 // GET /api/groups/:groupId/doubts
 exports.getGroupDoubts = async (req, res) => {
   try {
@@ -43,18 +43,24 @@ exports.getGroupDoubts = async (req, res) => {
       .populate('userId', 'name email')
       .sort({ createdAt: -1 });
 
-    res.json(doubts);
+    // Ensure image URLs are absolute
+    const withFullUrls = doubts.map(d => ({
+      ...d.toObject(),
+      imageUrl: makeFullUrl(req, d.imageUrl),
+      answerImage: makeFullUrl(req, d.answerImage),
+    }));
+
+    res.json(withFullUrls);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch group doubts' });
   }
 };
 
-
 // PUT /api/doubts/:id/answer
 exports.answerDoubt = async (req, res) => {
   try {
     const { answer } = req.body;
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
+    const answerImage = req.file ? makeFullUrl(req, `/uploads/${req.file.filename}`) : undefined;
 
     if (!answer) {
       return res.status(400).json({ error: 'Answer is required' });
@@ -65,8 +71,8 @@ exports.answerDoubt = async (req, res) => {
       answered: true,
     };
 
-    if (imageUrl) {
-      updateData.answerImage = imageUrl; // Add this field in your model if not present
+    if (answerImage) {
+      updateData.answerImage = answerImage;
     }
 
     const updated = await Doubt.findByIdAndUpdate(req.params.id, updateData, {
@@ -79,13 +85,39 @@ exports.answerDoubt = async (req, res) => {
     res.status(400).json({ error: 'Failed to answer doubt' });
   }
 };
+// GET /api/doubts/:id
+exports.getDoubtById = async (req, res) => {
+  try {
+    const doubt = await Doubt.findById(req.params.id)
+      .populate('userId', 'name email');
+
+    if (!doubt) {
+      return res.status(404).json({ error: 'Doubt not found' });
+    }
+
+    res.json({
+      ...doubt.toObject(),
+      imageUrl: makeFullUrl(req, doubt.imageUrl),
+      answerImage: makeFullUrl(req, doubt.answerImage),
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch doubt' });
+  }
+};
 
 
-// Optional: GET /api/doubts — to fetch all doubts across groups (useful for admin)
+// Optional: GET /api/doubts — fetch all doubts
 exports.getAllDoubts = async (req, res) => {
   try {
     const doubts = await Doubt.find().populate('userId', 'name email');
-    res.json(doubts);
+
+    const withFullUrls = doubts.map(d => ({
+      ...d.toObject(),
+      imageUrl: makeFullUrl(req, d.imageUrl),
+      answerImage: makeFullUrl(req, d.answerImage),
+    }));
+
+    res.json(withFullUrls);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch doubts' });
   }
