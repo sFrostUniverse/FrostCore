@@ -3,8 +3,16 @@ const Doubt = require('../models/doubtModel');
 // Helper to create absolute URL for uploaded files
 const makeFullUrl = (req, filePath) => {
   if (!filePath) return '';
+
+  // If already a full URL (starts with http:// or https://), return as-is
+  if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+    return filePath;
+  }
+
+  // Otherwise, prepend base URL
   return `${req.protocol}://${req.get('host')}${filePath}`;
 };
+
 
 // POST /api/groups/:groupId/doubts
 exports.askDoubt = async (req, res) => {
