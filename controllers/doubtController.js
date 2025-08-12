@@ -41,12 +41,14 @@ exports.getAllDoubts = async (req, res) => {
 };
 
 // Get group-specific doubts
+// Get group-specific doubts
 exports.getGroupDoubts = async (req, res) => {
   try {
     const { groupId } = req.params;
     console.log(`Fetching doubts for groupId: ${groupId}`);
 
-    const doubts = await Doubt.find({ groupId });
+    // Populate userId with email and username fields
+    const doubts = await Doubt.find({ groupId }).populate('userId', 'email username');
     console.log('Doubts found:', doubts);
 
     res.json(doubts);
@@ -55,6 +57,7 @@ exports.getGroupDoubts = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 
 // Get doubt by ID
