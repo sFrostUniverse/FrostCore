@@ -120,15 +120,13 @@ exports.getDoubtById = async (req, res) => {
 
     const { id } = req.params;
 
-    // Check if ID is missing or invalid format
     if (!id || id.length !== 24) {
       console.warn('⚠ Invalid doubt ID received:', id);
       return res.status(400).json({ message: 'Invalid doubt ID' });
     }
 
     const doubt = await Doubt.findById(id)
-      .populate('createdBy', 'username')
-      .populate('answers.createdBy', 'username');
+      .populate('userId', 'username'); // fixed field name here
 
     if (!doubt) {
       console.warn('❌ Doubt not found for ID:', id);
@@ -137,12 +135,12 @@ exports.getDoubtById = async (req, res) => {
 
     console.log('✅ Doubt found:', doubt.title);
     res.status(200).json(doubt);
-
   } catch (error) {
     console.error('💥 Error in getDoubtById:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 
 
