@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const doubtController = require('../controllers/doubtController');
-const upload = require('../middleware/upload'); // ← This is the Cloudinary multer storage
+const upload = require('../config/cloudnaryUpload'); // ✅ Now from config
 
-// 📝 Test route for quick upload check
+// 📝 Quick test route for image upload
 router.post('/ask', upload.single('image'), doubtController.askDoubt);
 
 // 🌐 Group-specific doubt routes

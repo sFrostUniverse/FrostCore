@@ -10,18 +10,6 @@ app.use((req, res, next) => {
   next();
 });
 
-const fs = require('fs');
-const path = require('path');
-
-// Ensure uploads folder exists
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-  logger.info(`📂 Created uploads directory at ${uploadDir}`);
-}
-
-
-
 const http = require('http'); // required for socket.io
 const connectDB = require('./config/db');
 const { Server } = require('socket.io'); // socket.io v4+
@@ -48,7 +36,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
 // Routes
 app.get('/', (req, res) => {
   logger.info('Root route accessed');
@@ -64,15 +51,18 @@ const noteRoutes = require('./routes/noteRoutes');
 const syllabusRoutes = require('./routes/syllabusRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const doubtRoutes = require('./routes/doubtRoutes');
-const uploadRoutes = require('./routes/uploadRoutes');
+const uploadRoutes = require('./routes/uploadRoutes'); // Will use Cloudinary
 
+// Debug log for doubts route
 app.use('/api/doubts', (req, res, next) => {
   console.log(`Incoming request to doubts route: ${req.method} ${req.originalUrl}`);
   next();
 }, doubtRoutes);
 
+// No local uploads directory anymore
+// No app.use('/uploads', express.static('uploads'))
 
-app.use('/uploads', express.static('uploads'));
+// API Routes
 app.use('/api/upload', uploadRoutes); 
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/syllabus', syllabusRoutes);
@@ -84,15 +74,11 @@ app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/notifications', notificationRoutes);
 
-
 // 404 handler
 app.use((req, res) => {
   logger.warn(`❌ 404 Not Found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({ message: 'Route not found' });
 });
-
-
-
 
 // Handle socket connections
 io.on('connection', (socket) => {
