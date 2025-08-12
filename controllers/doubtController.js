@@ -44,12 +44,18 @@ exports.getAllDoubts = async (req, res) => {
 exports.getGroupDoubts = async (req, res) => {
   try {
     const { groupId } = req.params;
+    console.log(`Fetching doubts for groupId: ${groupId}`);
+
     const doubts = await Doubt.find({ groupId });
+    console.log('Doubts found:', doubts);
+
     res.json(doubts);
   } catch (error) {
+    console.error('Error fetching doubts:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 // Get doubt by ID
 exports.getDoubtById = async (req, res) => {
