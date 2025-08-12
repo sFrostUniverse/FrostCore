@@ -12,10 +12,9 @@ const router = express.Router();
 // ✅ New route: get notes using user's groupId
 
 // ✅ Existing routes
+router.get('/', protect, getNotesByUserGroup); // Get notes by logged-in user's group
 router.get('/:groupId', protect, getNotes);
 router.post('/:groupId', protect, createNote);
 router.delete('/:noteId', protect, deleteNote);
-router.get('/', protect, getNotesByUserGroup); // this must exist
-
 
 module.exports = router;

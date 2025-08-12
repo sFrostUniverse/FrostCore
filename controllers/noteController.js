@@ -22,10 +22,12 @@ const createNote = async (req, res) => {
 
 // GET /api/notes/:groupId?parentId=xxx&page=1&limit=30
 const getNotes = async (req, res) => {
-  try {
-    const { groupId } = req.params;
-    const { parentId, page = 1, limit = 50 } = req.query;
+  const { groupId } = req.params;
+  const { parentId, page = 1, limit = 50 } = req.query;
 
+  logger.info(`Fetching notes for groupId: ${groupId} with parentId: ${parentId || 'null'}`);
+
+  try {
     const filter = { groupId };
 
     if (parentId) {
@@ -49,6 +51,7 @@ const getNotes = async (req, res) => {
     res.status(500).json({ success: false, error: 'Server error' });
   }
 };
+
 
 // DELETE /api/notes/:noteId
 const deleteNote = async (req, res) => {
