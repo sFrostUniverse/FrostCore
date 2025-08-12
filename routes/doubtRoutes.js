@@ -1,18 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const doubtController = require('../controllers/doubtController');
-const upload = require('../config/cloudnaryUpload'); // ✅ Now from config
+const upload = require('../config/cloudnaryUpload');
+const { protect } = require('../middleware/authMiddleware');
 
-// 📝 Quick test route for image upload
-router.post('/ask', upload.single('image'), doubtController.askDoubt);
+// Get all doubts
+router.get('/', protect, doubtController.getAllDoubts);
 
-// 🌐 Group-specific doubt routes
-router.get('/groups/:groupId/doubts', doubtController.getGroupDoubts);
-router.post('/groups/:groupId/doubts', upload.single('image'), doubtController.askDoubt);
+// Get doubts for a specific group
+router.get('/group/:groupId', protect, doubtController.getGroupDoubts);
 
-// 🗂️ General routes
-router.get('/', doubtController.getAllDoubts);
-router.get('/:id', doubtController.getDoubtById);
-router.put('/:id/answer', upload.single('image'), doubtController.answerDoubt);
+// Ask a doubt (with optional image)
+router.post('/group/:groupId', protect, upload.single('image'), doubtController.askDoubt);
+
+// Get a single doubt by ID
+router.get('/:id', protect, doubtController.getDoubtById);
+
+// Answer a doubt (with optional image)
+router.put('/:id/answer', protect, upload.single('image'), doubtController.answerDoubt);
 
 module.exports = router;

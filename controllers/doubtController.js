@@ -10,14 +10,17 @@ exports.askDoubt = async (req, res) => {
       return res.status(400).json({ message: 'Title and description are required' });
     }
 
-    const imageUrl = req.file ? req.file.path : null; // ✅ Cloudinary full URL
+    const imageUrl = req.file ? req.file.path : null; // Cloudinary full URL
 
     const doubt = await Doubt.create({
-      group: groupId || null,
+      userId: req.user._id,
+      groupId: groupId || null,
       title,
       description,
-      image: imageUrl,
-      askedBy: req.user._id
+      imageUrl,
+      answer: "",
+      answerImage: "",
+      answered: false
     });
 
     res.status(201).json(doubt);
@@ -30,7 +33,7 @@ exports.askDoubt = async (req, res) => {
 // Get all doubts
 exports.getAllDoubts = async (req, res) => {
   try {
-    const doubts = await Doubt.find().populate('askedBy', 'name');
+    const doubts = await Doubt.find();
     res.json(doubts);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -41,7 +44,7 @@ exports.getAllDoubts = async (req, res) => {
 exports.getGroupDoubts = async (req, res) => {
   try {
     const { groupId } = req.params;
-    const doubts = await Doubt.find({ group: groupId }).populate('askedBy', 'name');
+    const doubts = await Doubt.find({ groupId });
     res.json(doubts);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -51,7 +54,7 @@ exports.getGroupDoubts = async (req, res) => {
 // Get doubt by ID
 exports.getDoubtById = async (req, res) => {
   try {
-    const doubt = await Doubt.findById(req.params.id).populate('askedBy', 'name');
+    const doubt = await Doubt.findById(req.params.id);
     if (!doubt) {
       return res.status(404).json({ message: 'Doubt not found' });
     }
@@ -65,18 +68,16 @@ exports.getDoubtById = async (req, res) => {
 exports.answerDoubt = async (req, res) => {
   try {
     const { answer } = req.body;
-    const imageUrl = req.file ? req.file.path : null; // ✅ Cloudinary full URL
+    const answerImage = req.file ? req.file.path : null; // Cloudinary full URL
 
     const doubt = await Doubt.findById(req.params.id);
     if (!doubt) {
       return res.status(404).json({ message: 'Doubt not found' });
     }
 
-    doubt.answers.push({
-      answer,
-      answeredBy: req.user._id,
-      image: imageUrl
-    });
+    doubt.answer = answer || "";
+    doubt.answerImage = answerImage || "";
+    doubt.answered = true;
 
     await doubt.save();
     res.json(doubt);
