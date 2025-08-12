@@ -8,10 +8,9 @@ const { protect } = require('../middleware/authMiddleware');
 router.get('/', protect, doubtController.getAllDoubts);
 
 // Get doubts for a specific group
-router.get('/group/:groupId', protect, doubtController.getGroupDoubts);
+router.get('/groups/:groupId/doubts', protect, doubtController.getGroupDoubts);
+router.post('/groups/:groupId/doubts', protect, upload.single('image'), doubtController.askDoubt);
 
-// Ask a doubt (with optional image)
-router.post('/group/:groupId', protect, upload.single('image'), doubtController.askDoubt);
 
 // Get a single doubt by ID
 router.get('/:id', protect, doubtController.getDoubtById);
