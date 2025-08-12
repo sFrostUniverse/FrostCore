@@ -74,7 +74,6 @@ app.use('/api/doubts', (req, res, next) => {
 
 app.use('/uploads', express.static('uploads'));
 app.use('/api/upload', uploadRoutes); 
-app.use('/api/doubts', doubtRoutes);  // new route
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/syllabus', syllabusRoutes);
 app.use('/api/notes', noteRoutes);
