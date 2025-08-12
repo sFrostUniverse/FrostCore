@@ -68,6 +68,7 @@ exports.getGroupDoubts = async (req, res) => {
 };
 
 // PUT /api/doubts/:id/answer
+// PUT /api/doubts/:id/answer
 exports.answerDoubt = async (req, res) => {
   try {
     const { answer } = req.body;
@@ -86,9 +87,20 @@ exports.answerDoubt = async (req, res) => {
       updateData.answerImage = answerImage;
     }
 
-    const updated = await Doubt.findByIdAndUpdate(req.params.id, updateData, {
+    let updated = await Doubt.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
     });
+
+    if (!updated) {
+      return res.status(404).json({ error: 'Doubt not found' });
+    }
+
+    // ✅ Fix URLs before sending
+    updated = {
+      ...updated.toObject(),
+      imageUrl: makeFullUrl(req, updated.imageUrl),
+      answerImage: makeFullUrl(req, updated.answerImage),
+    };
 
     res.json(updated);
   } catch (err) {
@@ -96,6 +108,7 @@ exports.answerDoubt = async (req, res) => {
     res.status(400).json({ error: 'Failed to answer doubt' });
   }
 };
+
 
 // GET /api/doubts/:id
 // controllers/doubtController.js
