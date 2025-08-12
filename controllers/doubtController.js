@@ -98,24 +98,39 @@ exports.answerDoubt = async (req, res) => {
 };
 
 // GET /api/doubts/:id
+// controllers/doubtController.js
 exports.getDoubtById = async (req, res) => {
   try {
-    const doubt = await Doubt.findById(req.params.id)
-      .populate('userId', 'name email');
+    console.log('📩 Incoming getDoubtById request');
+    console.log('➡ URL:', req.originalUrl);
+    console.log('➡ Params:', req.params);
 
-    if (!doubt) {
-      return res.status(404).json({ error: 'Doubt not found' });
+    const { id } = req.params;
+
+    // Check if ID is missing or invalid format
+    if (!id || id.length !== 24) {
+      console.warn('⚠ Invalid doubt ID received:', id);
+      return res.status(400).json({ message: 'Invalid doubt ID' });
     }
 
-    res.json({
-      ...doubt.toObject(),
-      imageUrl: makeFullUrl(req, doubt.imageUrl),
-      answerImage: makeFullUrl(req, doubt.answerImage),
-    });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch doubt' });
+    const doubt = await Doubt.findById(id)
+      .populate('createdBy', 'username')
+      .populate('answers.createdBy', 'username');
+
+    if (!doubt) {
+      console.warn('❌ Doubt not found for ID:', id);
+      return res.status(404).json({ message: 'Doubt not found' });
+    }
+
+    console.log('✅ Doubt found:', doubt.title);
+    res.status(200).json(doubt);
+
+  } catch (error) {
+    console.error('💥 Error in getDoubtById:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 
 // Optional: GET /api/doubts — fetch all doubts
