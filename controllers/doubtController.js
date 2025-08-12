@@ -46,6 +46,7 @@ exports.askDoubt = async (req, res) => {
 
 
 // GET /api/groups/:groupId/doubts
+// GET /api/groups/:groupId/doubts
 exports.getGroupDoubts = async (req, res) => {
   try {
     const { groupId } = req.params;
@@ -54,11 +55,11 @@ exports.getGroupDoubts = async (req, res) => {
       .populate('userId', 'name email')
       .sort({ createdAt: -1 });
 
-    // Ensure image URLs are absolute
+    // Since Cloudinary already returns full URLs, don't prepend host
     const withFullUrls = doubts.map(d => ({
       ...d.toObject(),
-      imageUrl: makeFullUrl(req, d.imageUrl),
-      answerImage: makeFullUrl(req, d.answerImage),
+      imageUrl: d.imageUrl || '',
+      answerImage: d.answerImage || '',
     }));
 
     res.json(withFullUrls);
@@ -67,7 +68,6 @@ exports.getGroupDoubts = async (req, res) => {
   }
 };
 
-// PUT /api/doubts/:id/answer
 // PUT /api/doubts/:id/answer
 exports.answerDoubt = async (req, res) => {
   try {
