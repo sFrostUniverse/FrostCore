@@ -48,6 +48,7 @@ app.use((req, res, next) => {
   next();
 });
 
+
 // Routes
 app.get('/', (req, res) => {
   logger.info('Root route accessed');
@@ -64,6 +65,12 @@ const syllabusRoutes = require('./routes/syllabusRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const doubtRoutes = require('./routes/doubtRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+
+app.use('/api/doubts', (req, res, next) => {
+  console.log(`Incoming request to doubts route: ${req.method} ${req.originalUrl}`);
+  next();
+}, doubtRoutes);
+
 
 app.use('/uploads', express.static('uploads'));
 app.use('/api/upload', uploadRoutes); 
