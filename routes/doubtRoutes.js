@@ -9,7 +9,14 @@ router.get('/', protect, doubtController.getAllDoubts);
 
 // Get doubts for a specific group (newest first)
 router.get('/groups/:groupId/doubts', protect, doubtController.getGroupDoubts);
-router.post('/groups/:groupId/doubts', protect, upload.single('image'), doubtController.askDoubt);
+
+// Ask a doubt (with optional image)
+router.post(
+  '/groups/:groupId/doubts',
+  protect,
+  upload.single('image'),
+  doubtController.askDoubt
+);
 
 // Get a single doubt by ID
 router.get('/:id', protect, doubtController.getDoubtById);
@@ -19,5 +26,12 @@ router.put('/:id/answer', protect, upload.single('image'), doubtController.answe
 
 // Delete a doubt
 router.delete('/:id', protect, doubtController.deleteDoubt);
+
+// Delete an individual answer
+router.delete(
+  '/answers/:answerId',
+  protect,
+  doubtController.deleteAnswer
+);
 
 module.exports = router;

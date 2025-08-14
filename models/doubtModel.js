@@ -1,5 +1,12 @@
 const mongoose = require('mongoose');
 
+const answerSchema = new mongoose.Schema({
+  text: { type: String, required: true },
+  imageUrl: { type: String, default: '' },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
 const doubtSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -23,18 +30,11 @@ const doubtSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
-  answer: {
-    type: String,
-    default: ''
-  },
-  answerImage: {
-    type: String,
-    default: ''
-  },
+  answers: [answerSchema], // ✅ store multiple answers
   answered: {
     type: Boolean,
     default: false
   }
-}, { timestamps: true }); // ✅ automatically adds createdAt & updatedAt
+}, { timestamps: true }); // automatically adds createdAt & updatedAt
 
 module.exports = mongoose.model('Doubt', doubtSchema);

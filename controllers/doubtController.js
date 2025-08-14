@@ -18,8 +18,6 @@ exports.askDoubt = async (req, res) => {
       title,
       description,
       imageUrl,
-      answer: "",
-      answerImage: "",
       answered: false
     });
 
@@ -34,8 +32,9 @@ exports.askDoubt = async (req, res) => {
 exports.getDoubtById = async (req, res) => {
   try {
     const doubt = await Doubt.findById(req.params.id)
-      .populate('userId', 'email username');
-      
+      .populate('userId', 'email username')
+      .populate('answers.createdBy', 'email username'); // populate answer authors
+
     if (!doubt) {
       return res.status(404).json({ message: 'Doubt not found' });
     }
@@ -47,13 +46,14 @@ exports.getDoubtById = async (req, res) => {
   }
 };
 
-
-
+// Get all doubts
 exports.getAllDoubts = async (req, res) => {
   try {
     const doubts = await Doubt.find()
       .populate('userId', 'email username')
+      .populate('answers.createdBy', 'email username')
       .sort({ createdAt: -1 }); // newest first
+
     res.json(doubts);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -68,7 +68,8 @@ exports.getGroupDoubts = async (req, res) => {
 
     const doubts = await Doubt.find({ groupId })
       .populate('userId', 'email username')
-      .sort({ createdAt: -1 }); // newest first
+      .populate('answers.createdBy', 'email username')
+      .sort({ createdAt: -1 });
 
     console.log('Doubts found:', doubts);
     res.json(doubts);
@@ -78,40 +79,41 @@ exports.getGroupDoubts = async (req, res) => {
   }
 };
 
-
 // Answer a doubt
 exports.answerDoubt = async (req, res) => {
   try {
-    const { answer } = req.body;
-    const answerImage = req.file ? req.file.path : null; // Cloudinary full URL
+    const { text } = req.body; // answer text
+    const answerImage = req.file ? req.file.path : null;
 
     const doubt = await Doubt.findById(req.params.id);
-    if (!doubt) {
-      return res.status(404).json({ message: 'Doubt not found' });
-    }
+    if (!doubt) return res.status(404).json({ message: 'Doubt not found' });
 
-    doubt.answer = answer || "";
-    doubt.answerImage = answerImage || "";
-    doubt.answered = true;
+    const newAnswer = {
+      text,
+      imageUrl: answerImage || '',
+      createdBy: req.user._id
+    };
+
+    doubt.answers.push(newAnswer);
+    doubt.answered = doubt.answers.length > 0;
 
     await doubt.save();
+
     res.json(doubt);
   } catch (error) {
     console.error('❌ Error answering doubt:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 // Delete a doubt
 exports.deleteDoubt = async (req, res) => {
   try {
     const { id } = req.params;
 
     const doubt = await Doubt.findById(id);
-    if (!doubt) {
-      return res.status(404).json({ message: 'Doubt not found' });
-    }
+    if (!doubt) return res.status(404).json({ message: 'Doubt not found' });
 
-    // Optional: restrict deletion to owner
     if (String(doubt.userId) !== String(req.user._id)) {
       return res.status(403).json({ message: 'Not authorized to delete this doubt' });
     }
@@ -120,6 +122,33 @@ exports.deleteDoubt = async (req, res) => {
     res.json({ message: 'Doubt deleted successfully' });
   } catch (error) {
     console.error('❌ Error deleting doubt:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// Delete an answer
+exports.deleteAnswer = async (req, res) => {
+  try {
+    const { answerId } = req.params;
+
+    // find the doubt that contains this answer
+    const doubt = await Doubt.findOne({ 'answers._id': answerId });
+    if (!doubt) return res.status(404).json({ message: 'Answer not found' });
+
+    const answer = doubt.answers.id(answerId);
+
+    if (String(answer.createdBy) !== String(req.user._id)) {
+      return res.status(403).json({ message: 'Not authorized to delete this answer' });
+    }
+
+    answer.remove();
+    doubt.answered = doubt.answers.length > 0;
+
+    await doubt.save();
+
+    res.json({ message: 'Answer deleted successfully', doubt });
+  } catch (error) {
+    console.error('❌ Error deleting answer:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
