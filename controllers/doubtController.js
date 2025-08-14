@@ -30,10 +30,30 @@ exports.askDoubt = async (req, res) => {
   }
 };
 
-// Get all doubts
+// Get a single doubt by ID
+exports.getDoubtById = async (req, res) => {
+  try {
+    const doubt = await Doubt.findById(req.params.id)
+      .populate('userId', 'email username');
+      
+    if (!doubt) {
+      return res.status(404).json({ message: 'Doubt not found' });
+    }
+
+    res.json(doubt);
+  } catch (error) {
+    console.error('❌ Error fetching doubt:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
+
 exports.getAllDoubts = async (req, res) => {
   try {
-    const doubts = await Doubt.find();
+    const doubts = await Doubt.find()
+      .populate('userId', 'email username')
+      .sort({ createdAt: -1 }); // newest first
     res.json(doubts);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -41,16 +61,16 @@ exports.getAllDoubts = async (req, res) => {
 };
 
 // Get group-specific doubts
-// Get group-specific doubts
 exports.getGroupDoubts = async (req, res) => {
   try {
     const { groupId } = req.params;
     console.log(`Fetching doubts for groupId: ${groupId}`);
 
-    // Populate userId with email and username fields
-    const doubts = await Doubt.find({ groupId }).populate('userId', 'email username');
-    console.log('Doubts found:', doubts);
+    const doubts = await Doubt.find({ groupId })
+      .populate('userId', 'email username')
+      .sort({ createdAt: -1 }); // newest first
 
+    console.log('Doubts found:', doubts);
     res.json(doubts);
   } catch (error) {
     console.error('Error fetching doubts:', error);
@@ -58,20 +78,6 @@ exports.getGroupDoubts = async (req, res) => {
   }
 };
 
-
-
-// Get doubt by ID
-exports.getDoubtById = async (req, res) => {
-  try {
-    const doubt = await Doubt.findById(req.params.id);
-    if (!doubt) {
-      return res.status(404).json({ message: 'Doubt not found' });
-    }
-    res.json(doubt);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-};
 
 // Answer a doubt
 exports.answerDoubt = async (req, res) => {
@@ -92,6 +98,28 @@ exports.answerDoubt = async (req, res) => {
     res.json(doubt);
   } catch (error) {
     console.error('❌ Error answering doubt:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+// Delete a doubt
+exports.deleteDoubt = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const doubt = await Doubt.findById(id);
+    if (!doubt) {
+      return res.status(404).json({ message: 'Doubt not found' });
+    }
+
+    // Optional: restrict deletion to owner
+    if (String(doubt.userId) !== String(req.user._id)) {
+      return res.status(403).json({ message: 'Not authorized to delete this doubt' });
+    }
+
+    await doubt.deleteOne();
+    res.json({ message: 'Doubt deleted successfully' });
+  } catch (error) {
+    console.error('❌ Error deleting doubt:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };

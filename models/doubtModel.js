@@ -34,11 +34,7 @@ const doubtSchema = new mongoose.Schema({
   answered: {
     type: Boolean,
     default: false
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
   }
-});
+}, { timestamps: true }); // ✅ automatically adds createdAt & updatedAt
 
 module.exports = mongoose.model('Doubt', doubtSchema);
