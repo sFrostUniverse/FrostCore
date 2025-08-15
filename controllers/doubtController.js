@@ -112,6 +112,34 @@ exports.answerDoubt = async (req, res) => {
 };
 
 
+exports.addAnswerToDoubt = async (req, res) => {
+  try {
+    const { text } = req.body;
+    const answerImage = req.file ? req.file.path : null;
+
+    const doubt = await Doubt.findById(req.params.id);
+    if (!doubt) {
+      return res.status(404).json({ message: 'Doubt not found' });
+    }
+
+    doubt.answers.push({
+      text: text || "",
+      imageUrl: answerImage || "",
+      createdBy: req.user._id,
+    });
+
+    doubt.answered = true; // mark as answered
+    await doubt.save();
+
+    res.json(doubt);
+  } catch (error) {
+    console.error('❌ Error adding answer:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
+
 // Delete a doubt
 exports.deleteDoubt = async (req, res) => {
   try {

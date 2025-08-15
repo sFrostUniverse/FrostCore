@@ -17,6 +17,13 @@ router.post(
   upload.single('image'),
   doubtController.askDoubt
 );
+router.post(
+  '/:id/add-answer',
+  protect,
+  upload.single('image'),
+  doubtController.addAnswerToDoubt
+);
+
 
 // Get a single doubt by ID
 router.get('/:id', protect, doubtController.getDoubtById);
