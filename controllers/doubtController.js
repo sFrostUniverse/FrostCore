@@ -186,3 +186,23 @@ exports.deleteAnswer = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+// GET /api/doubts/count/:groupId
+exports.getNewDoubtsCount = async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    const userId = req.user._id; // auth middleware must set req.user
+
+    const count = await Doubt.countDocuments({
+      groupId,
+      checkedBy: { $ne: userId } // doubts not yet seen by this user
+    });
+
+    res.json({ count });
+  } catch (error) {
+    console.error('❌ Error fetching new doubts count:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+

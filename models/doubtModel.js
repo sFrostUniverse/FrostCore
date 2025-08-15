@@ -34,7 +34,8 @@ const doubtSchema = new mongoose.Schema({
   answered: {
     type: Boolean,
     default: false
-  }
-}, { timestamps: true }); // automatically adds createdAt & updatedAt
+  },
+  checkedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] // 👈 track users who saw this doubt
+}, { timestamps: true });
 
 module.exports = mongoose.model('Doubt', doubtSchema);

@@ -28,6 +28,8 @@ router.post(
 // Get a single doubt by ID
 router.get('/:id', protect, doubtController.getDoubtById);
 
+router.get('/count/:groupId', protect, doubtController.getNewDoubtsCount);
+
 // Answer a doubt (with optional image)
 router.put('/:id/answer', protect, upload.single('image'), doubtController.answerDoubt);
 
