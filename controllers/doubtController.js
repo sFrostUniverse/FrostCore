@@ -79,25 +79,30 @@ exports.getGroupDoubts = async (req, res) => {
   }
 };
 
-// Answer a doubt
+// Answer a doubt (add to array instead of replacing)
 exports.answerDoubt = async (req, res) => {
   try {
-    const { text } = req.body; // answer text
-    const answerImage = req.file ? req.file.path : null;
+    const { answer } = req.body;
+    const answerImage = req.file ? req.file.path : null; // Cloudinary URL
 
     const doubt = await Doubt.findById(req.params.id);
     if (!doubt) return res.status(404).json({ message: 'Doubt not found' });
 
+    // Push new answer to array
     const newAnswer = {
-      text,
-      imageUrl: answerImage || '',
-      createdBy: req.user._id
+      text: answer || "",
+      imageUrl: answerImage || "",
+      createdBy: req.user._id,
     };
 
+    doubt.answers = doubt.answers || [];
     doubt.answers.push(newAnswer);
-    doubt.answered = doubt.answers.length > 0;
+    doubt.answered = true;
 
     await doubt.save();
+
+    // Populate createdBy for frontend
+    await doubt.populate('answers.createdBy', 'username');
 
     res.json(doubt);
   } catch (error) {
@@ -105,6 +110,7 @@ exports.answerDoubt = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 // Delete a doubt
 exports.deleteDoubt = async (req, res) => {
