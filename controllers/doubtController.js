@@ -171,9 +171,13 @@ exports.deleteAnswer = async (req, res) => {
 
     const answer = doubt.answers.id(answerId);
 
-    if (String(answer.createdBy) !== String(req.user._id)) {
-      return res.status(403).json({ message: 'Not authorized to delete this answer' });
-    }
+    if (
+    String(answer.createdBy) !== String(req.user._id) &&
+    String(doubt.userId) !== String(req.user._id)
+  ) {
+    return res.status(403).json({ message: 'Not authorized to delete this answer' });
+  }
+
 
     answer.remove();
     doubt.answered = doubt.answers.length > 0;
