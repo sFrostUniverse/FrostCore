@@ -161,35 +161,45 @@ exports.deleteDoubt = async (req, res) => {
 };
 
 // Delete an answer
+// Delete an individual answer
 exports.deleteAnswer = async (req, res) => {
   try {
     const { answerId } = req.params;
 
-    // find the doubt that contains this answer
+    // Find the doubt that contains this answer
     const doubt = await Doubt.findOne({ 'answers._id': answerId });
-    if (!doubt) return res.status(404).json({ message: 'Answer not found' });
+    if (!doubt) {
+      return res.status(404).json({ message: 'Answer or Doubt not found' });
+    }
 
-    const answer = doubt.answers.id(answerId);
+    // Optional authorization: allow answer author or doubt owner
+    // const userId = String(req.user._id);
+    // const answerDoc = doubt.answers.id(answerId);
+    // if (
+    //   String(answerDoc.createdBy) !== userId &&
+    //   String(doubt.userId) !== userId
+    // ) {
+    //   return res.status(403).json({ message: 'Not authorized to delete this answer' });
+    // }
 
-    if (
-    String(answer.createdBy) !== String(req.user._id) &&
-    String(doubt.userId) !== String(req.user._id)
-  ) {
-    return res.status(403).json({ message: 'Not authorized to delete this answer' });
-  }
+    // Remove the answer subdocument safely
+    doubt.answers.pull(answerId);
 
-
-    answer.remove();
+    // Update answered flag based on remaining answers
     doubt.answered = doubt.answers.length > 0;
 
     await doubt.save();
 
-    res.json({ message: 'Answer deleted successfully', doubt });
+    return res.status(200).json({
+      message: 'Answer deleted successfully',
+      doubt, // (optional) send back updated doc
+    });
   } catch (error) {
     console.error('❌ Error deleting answer:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    return res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 // GET /api/doubts/count/:groupId
 exports.getNewDoubtsCount = async (req, res) => {
