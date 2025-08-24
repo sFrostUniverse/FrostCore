@@ -74,16 +74,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/notifications', notificationRoutes);
 
-
-app.get('/latest', (req, res) => {
-  res.json({
-    version: "1.0.8",
-    url: "https://github.com/sFrostUniverse/FrostUpdate/raw/main/releases/app-release.apk"
-  });
-});
-
-
-
 // 404 handler
 app.use((req, res) => {
   logger.warn(`❌ 404 Not Found: ${req.method} ${req.originalUrl}`);
