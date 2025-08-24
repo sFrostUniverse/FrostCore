@@ -77,7 +77,7 @@ app.use('/api/notifications', notificationRoutes);
 
 app.get('/latest', (req, res) => {
   res.json({
-    version: "1.0.4",
+    version: "1.0.6",
     url: "https://github.com/sFrostUniverse/FrostUpdate/raw/main/releases/app-release.apk"
   });
 });
