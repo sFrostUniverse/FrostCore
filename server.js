@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const express = require('express');
+const cors = require("cors");
 const app = express();
 
 const logger = require('./utils/logger');
@@ -9,6 +10,12 @@ app.use((req, res, next) => {
   logger.info(`${req.method} ${req.originalUrl} from ${req.ip}`);
   next();
 });
+app.use(cors({
+  origin: "*", // or ["https://sfrostuniverse.github.io"] for stricter security
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 
 const http = require('http'); // required for socket.io
 const connectDB = require('./config/db');
